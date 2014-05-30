@@ -18,6 +18,7 @@ SETTING_MINIFY = "minify"
 SETTING_MINNAME = "minName"
 SETTING_OUTPUTDIR = "outputDir"
 SETTING_OUTPUTFILE = "outputFile"
+SETTING_SOURCEMAP = "sourceMap"
 
 
 #define methods to convert css, either the current file or all
@@ -45,7 +46,8 @@ class Compiler:
         'minimised': project_settings.get(SETTING_MINIFY, settings.get(SETTING_MINIFY, True)),
         'min_name': project_settings.get(SETTING_MINNAME, settings.get(SETTING_MINNAME, True)),
         'output_dir': project_settings.get(SETTING_OUTPUTDIR, settings.get(SETTING_OUTPUTDIR)),
-        'output_file': project_settings.get(SETTING_OUTPUTFILE, settings.get(SETTING_OUTPUTFILE))
+        'output_file': project_settings.get(SETTING_OUTPUTFILE, settings.get(SETTING_OUTPUTFILE)),
+        'source_map' : project_settings.get(SETTING_SOURCEMAP, settings.get(SETTING_SOURCEMAP))
     }
 
   # for command 'LessToCssCommand' and 'AutoLessToCssCommand'
@@ -144,14 +146,19 @@ class Compiler:
       # if the outputfile doesn't end on .css make sure that it does by appending .css
       if not outputFile.endswith(".css"):
         css = outputFile + ".css"
+        sourceMap = outputFile + ".map"
       else:
         css = outputFile
+        sourceMap = re.sub('\.css$', '.map', outputFile)
     else:
       # when no output file is specified we take the name of the less file and substitute .less with .css
       if settings['min_name']:
         css = re.sub('\.less$', '.min.css', less)
       else:
         css = re.sub('\.less$', '.css', less)
+
+      sourceMap = re.sub('\.less$', '.map', less)
+
 
     # Check if the CSS file should be written to the same folder as where the LESS file is
     if (dirs['same_dir']):
@@ -188,6 +195,9 @@ class Compiler:
     else:
       # the call for non minified CSS is the same on all platforms
       cmd = [lessc_command, less, css, "--verbose"]
+
+    if settings['source_map']:
+      cmd += ["--source-map="+sourceMap]
 
     print("[less2css] Converting " + less + " to " + css)
 

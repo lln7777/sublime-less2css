@@ -19,5 +19,6 @@
   "autoCompile": true,
   "showErrorWithWindow": true,
   "main_file": false,
-  "ignorePrefixedFiles": false
+  "ignorePrefixedFiles": false,
+  "sourceMap": true
 }
